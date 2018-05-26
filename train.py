@@ -71,7 +71,7 @@ if True:
 
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter),
                          model,
-                         SimpleLossCompute(model.generator, criterion, model_opt))
+                         SimpleLossCompute(model.generator, criterion, None))
         print("Validation loss:", loss)
 
 else:

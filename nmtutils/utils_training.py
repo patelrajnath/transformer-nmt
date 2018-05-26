@@ -70,7 +70,7 @@ class SimpleLossCompute:
         return loss.data[0] * norm
 
 
-def run_epoch(data_iter, model, loss_compute, epoch=None):
+def run_epoch(data_iter, model, loss_compute, epoch=0):
     "Standard Training and Logging Function"
     start = time.time()
     total_tokens = 0

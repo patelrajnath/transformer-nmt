@@ -18,7 +18,7 @@ from utils.data import MyIterator, rebatch
 from models.transformer import make_model
 from utils.download import get_data
 from optim.regularization import LabelSmoothing
-from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, save_checkpoint, load_checkpoint
+from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, save_state, load_model_state
 from optim.noam import NoamOpt
 from translate.decode_transformer import greedy_decode
 
@@ -26,10 +26,6 @@ from translate.decode_transformer import greedy_decode
 # GPUs to use
 devices = [0, 1, 2, 3]
 train, val, test, SRC, TGT = get_data()
-
-
-def does_file_exists(filePathAndName):
-    return os.path.exists(filePathAndName)
 
 if True:
     pad_idx = TGT.vocab.stoi["<blank>"]
@@ -40,6 +36,7 @@ if True:
     criterion = LabelSmoothing(size=len(TGT.vocab), padding_idx=pad_idx, smoothing=0.1)
     criterion.cuda()
     BATCH_SIZE = 1000
+
     global train_iter
     train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=None,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
@@ -60,9 +57,8 @@ if True:
 
     start_epoch = 0
     max_epochs = 10
-    if does_file_exists(checkpoint):
-        print("Loading model from checkpoints", checkpoint)
-        start_epoch = load_checkpoint(checkpoint, model, model_opt)
+    print("Loading model from checkpoints", checkpoint)
+    load_model_state(checkpoint, model, cuda_device=True)
 
     for epoch in range(start_epoch, max_epochs):
         model.train()
@@ -70,7 +66,7 @@ if True:
         run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                   SimpleLossCompute(model.generator, criterion, model_opt), epoch)
         print("Saving checkpoint!", checkpoint)
-        save_checkpoint(checkpoint, epoch, model, model_opt)
+        save_state(checkpoint, model, criterion, model_opt, epoch)
 
         model.eval()
         print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
@@ -78,7 +74,7 @@ if True:
 
 else:
     print("Loading model from checkpoints", checkpoint)
-    start_epoch = load_checkpoint(checkpoint, model, model_opt)
+    load_model_state(checkpoint, model, cuda_device=True)
     model.eval()
 
 for i, batch in enumerate(valid_iter):

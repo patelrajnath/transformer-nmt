@@ -128,7 +128,7 @@ def save_state(filename, model, criterion, optimizer,
 
 def load_model_state(filename, model, cuda_device=None):
     if not os.path.exists(filename):
-        return None, [], None
+        return 0
     if cuda_device is None:
         state = torch.load(filename)
     else:

@@ -121,7 +121,6 @@ def save_state(filename, model, criterion, optimizer,
                 'num_updates': num_updates,
             }
         ],
-        'last_optimizer_state': optimizer.state_dict(),
         'extra_state': extra_state,
     }
     torch_persistent_save(state_dict, filename)

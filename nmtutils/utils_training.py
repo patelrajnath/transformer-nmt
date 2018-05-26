@@ -10,9 +10,9 @@
  """
 
 import time
+import torch
 
 from torch.autograd import Variable
-
 from nmtutils.utils_transfromer import subsequent_mask
 
 
@@ -90,3 +90,14 @@ def run_epoch(data_iter, model, loss_compute):
             start = time.time()
             tokens = 0
     return total_loss / total_tokens
+
+
+def save_state(filename, model):
+    """
+
+    :param filename:
+    :param model:
+    :return:
+    """
+    model_state = {"model": model.state_dict()}
+    torch.save(filename, model_state)

@@ -137,7 +137,7 @@ def load_model_state(filename, model, cuda_device=None):
             filename,
             map_location=lambda s, l: default_restore_location(s, 'cuda:{}'.format(cuda_device))
         )
-    state = _upgrade_state_dict(state)
+    # state = _upgrade_state_dict(state)
     state['model'] = model.upgrade_state_dict(state['model'])
 
     # load model parameters
@@ -148,6 +148,7 @@ def load_model_state(filename, model, cuda_device=None):
                         'please ensure that the architectures match')
 
     return state['extra_state'], state['optimizer_history'], state['last_optimizer_state']
+
 
 def _upgrade_state_dict(state):
     """Helper for upgrading old model checkpoints."""

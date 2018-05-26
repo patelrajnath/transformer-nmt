@@ -8,6 +8,7 @@
  Email: patelrajnath (at) gmail (dot) com
  Created: 26/May/2018 01:04
  """
+from __future__ import print_function
 import torch
 
 from utils.data import MyIterator, rebatch
@@ -40,7 +41,7 @@ if True:
     # model_par = nn.DataParallel(model, device_ids=devices)
 None
 
-if False:
+if True:
     model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
     torch.save(model, 'filename.pt')
@@ -59,16 +60,16 @@ for i, batch in enumerate(valid_iter):
     src_mask = (src != SRC.vocab.stoi["<blank>"]).unsqueeze(-2)
     out = greedy_decode(model, src, src_mask,
                         max_len=60, start_symbol=TGT.vocab.stoi["<s>"])
-    print("Translation:", end="\t")
+    print ("Translation:", end="\t")
     for i in range(1, out.size(1)):
         sym = TGT.vocab.itos[out[0, i]]
         if sym == "</s>": break
-        print(sym, end =" ")
+        print (sym, end =" ")
     print()
-    print("Target:", end="\t")
+    print ("Target:", end="\t")
     for i in range(1, batch.trg.size(0)):
         sym = TGT.vocab.itos[batch.trg.data[i, 0]]
         if sym == "</s>": break
-        print(sym, end =" ")
+        print (sym, end =" ")
     print()
     break

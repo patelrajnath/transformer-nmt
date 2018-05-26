@@ -14,7 +14,7 @@ from utils.data import MyIterator, rebatch
 from models.transformer import make_model
 from utils.download import get_data
 from optim.regularization import LabelSmoothing
-from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute
+from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, save_state
 from optim.noam import NoamOpt
 from translate.decode_transformer import greedy_decode
 
@@ -30,28 +30,29 @@ if True:
 
     criterion = LabelSmoothing(size=len(TGT.vocab), padding_idx=pad_idx, smoothing=0.1)
     # criterion.cuda()
-    BATCH_SIZE = 10
+    BATCH_SIZE = 1000
     train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=-1,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
     valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=-1,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
-                            batch_size_fn=batch_size_fn, train=False)
+                            batch_size_fn=batch_size_fn, train=True)
     # model_par = nn.DataParallel(model, device_ids=devices)
 None
 
-if True:
+if False:
     model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
+    torch.save(model, 'filename.pt')
     for epoch in range(10):
         model.train()
-        run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
+        run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
                   SimpleLossCompute(model.generator, criterion, model_opt))
         model.eval()
-        print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
+        print(run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
                         SimpleLossCompute(model.generator, criterion, None)))
 else:
-    model = torch.load("iwslt.pt")
+    model = torch.load('filename.pt')
 
 for i, batch in enumerate(valid_iter):
     src = batch.src.transpose(0, 1)[:1]

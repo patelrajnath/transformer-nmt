@@ -63,14 +63,16 @@ if True:
     for epoch in range(start_epoch, max_epochs):
         model.train()
 
-        run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
+        run_epoch((rebatch(pad_idx, b) for b in train_iter),
+                  model,
                   SimpleLossCompute(model.generator, criterion, model_opt), epoch)
         print("Saving checkpoint!", checkpoint)
         save_state(checkpoint, model, criterion, model_opt, epoch)
 
-        model.eval()
-        print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
-                        SimpleLossCompute(model.generator, criterion, None)), epoch)
+        loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter),
+                         model,
+                         SimpleLossCompute(model.generator, criterion, model_opt))
+        print("Validation loss:", loss)
 
 else:
     print("Loading model from checkpoints", checkpoint)

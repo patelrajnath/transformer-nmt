@@ -21,5 +21,5 @@ or
 
 Train a real de-en model using default configuration.
 ```bash
-$python train_de-en.py
+$python train.py
 ```

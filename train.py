@@ -38,11 +38,11 @@ if True:
     BATCH_SIZE = 1000
 
     global train_iter
-    train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=None,
+    train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=0,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
     global valid_iter
-    valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=None,
+    valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=0,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=False)
     # model_par = nn.DataParallel(model, device_ids=devices)

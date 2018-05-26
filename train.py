@@ -58,7 +58,7 @@ if True:
     start_epoch = 0
     max_epochs = 10
     print("Loading model from checkpoints", checkpoint)
-    load_model_state(checkpoint, model, cuda_device=True)
+    start_epoch = load_model_state(checkpoint, model, cuda_device=0)
 
     for epoch in range(start_epoch, max_epochs):
         model.train()
@@ -74,7 +74,7 @@ if True:
 
 else:
     print("Loading model from checkpoints", checkpoint)
-    load_model_state(checkpoint, model, cuda_device=True)
+    start_epoch = load_model_state(checkpoint, model, cuda_device=0)
     model.eval()
 
 for i, batch in enumerate(valid_iter):

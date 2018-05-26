@@ -114,11 +114,11 @@ def save_state(filename, model, criterion, optimizer,
         extra_state = {}
     state_dict = {
         'model': model.state_dict(),
+        'num_updates': num_updates,
         'optimizer_history': optim_history + [
             {
                 'criterion_name': criterion.__class__.__name__,
                 'optimizer_name': optimizer.__class__.__name__,
-                'num_updates': num_updates,
             }
         ],
         'extra_state': extra_state,
@@ -146,7 +146,7 @@ def load_model_state(filename, model, cuda_device=None):
         raise Exception('Cannot load model parameters from checkpoint, '
                         'please ensure that the architectures match')
 
-    return state['extra_state'], state['optimizer_history'], state['last_optimizer_state']
+    return state['num_updates']
 
 
 def _upgrade_state_dict(state):

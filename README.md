@@ -1,7 +1,7 @@
 # Introduction
 
 This project is created mainly to understand the transformer model of 
-Neural Machine Translation. The mst of the code has been taken from- 
+Neural Machine Translation. The most modules of the code has been taken from- 
 http://nlp.seas.harvard.edu/2018/04/03/attention.html
 
 

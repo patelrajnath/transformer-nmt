@@ -68,6 +68,7 @@ if True:
 else:
     print("Loading model from checkpoints", checkpoint)
     model = torch.load(checkpoint)
+    model.eval()
 
 for i, batch in enumerate(valid_iter):
     src = batch.src.transpose(0, 1)[:1]

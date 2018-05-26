@@ -9,6 +9,9 @@
  Created: 26/May/2018 01:04
  """
 from __future__ import print_function
+
+import os
+
 import torch
 
 from utils.data import MyIterator, rebatch
@@ -24,6 +27,9 @@ from translate.decode_transformer import greedy_decode
 devices = [0, 1, 2, 3]
 train, val, test, SRC, TGT = get_data()
 
+def does_file_exists(filePathAndName):
+    return os.path.exists(filePathAndName)
+
 if True:
     pad_idx = TGT.vocab.stoi["<blank>"]
     model = make_model(len(SRC.vocab), len(TGT.vocab), N=6)
@@ -37,23 +43,29 @@ if True:
                             batch_size_fn=batch_size_fn, train=True)
     valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=None,
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
-                            batch_size_fn=batch_size_fn, train=True)
+                            batch_size_fn=batch_size_fn, train=False)
     # model_par = nn.DataParallel(model, device_ids=devices)
 None
 
+checkpoint = 'filename.pt'
+
 if True:
+    if does_file_exists(checkpoint):
+        print("Loading model from checkpoints", checkpoint)
+        model = torch.load('filename.pt')
     model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
-    torch.save(model, 'filename.pt')
     for epoch in range(10):
         model.train()
-        run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
+        run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                   SimpleLossCompute(model.generator, criterion, model_opt))
         model.eval()
-        print(run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
+        print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                         SimpleLossCompute(model.generator, criterion, None)))
+        torch.save(model, checkpoint)
+
 else:
-    model = torch.load('filename.pt')
+    model = torch.load(checkpoint)
 
 for i, batch in enumerate(valid_iter):
     src = batch.src.transpose(0, 1)[:1]

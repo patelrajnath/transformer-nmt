@@ -62,9 +62,11 @@ if True:
         model.eval()
         print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                         SimpleLossCompute(model.generator, criterion, None)))
+        print("Saving checkpoint!", checkpoint)
         torch.save(model, checkpoint)
 
 else:
+    print("Loading model from checkpoints", checkpoint)
     model = torch.load(checkpoint)
 
 for i, batch in enumerate(valid_iter):

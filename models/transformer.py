@@ -115,7 +115,7 @@ class EncoderLayer(nn.Module):
 
 
 class Decoder(nn.Module):
-    "Generic N layer decoder with masking."
+    "Generic N layer translate with masking."
 
     def __init__(self, layer, N):
         super(Decoder, self).__init__()

@@ -10,13 +10,13 @@
  """
 import torch
 
-from data.data import MyIterator, rebatch
+from utils.data import MyIterator, rebatch
 from models.transformer import make_model
-from data.download import get_data
+from utils.download import get_data
 from optim.regularization import LabelSmoothing
 from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute
 from optim.noam import NoamOpt
-from decoder.decode_transformer import greedy_decode
+from translate.decode_transformer import greedy_decode
 
 
 # GPUs to use
@@ -44,7 +44,6 @@ if True:
     model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
     for epoch in range(10):
-        model.train()
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                   SimpleLossCompute(model.generator, criterion, model_opt))

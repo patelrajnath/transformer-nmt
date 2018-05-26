@@ -55,15 +55,18 @@ if True:
         model = torch.load('filename.pt')
     model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
+
     for epoch in range(10):
         model.train()
+
         run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                   SimpleLossCompute(model.generator, criterion, model_opt))
+        print("Saving checkpoint!", checkpoint)
+        torch.save(model, checkpoint)
+
         model.eval()
         print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
                         SimpleLossCompute(model.generator, criterion, None)), epoch)
-        print("Saving checkpoint!", checkpoint)
-        torch.save(model, checkpoint)
 
 else:
     print("Loading model from checkpoints", checkpoint)

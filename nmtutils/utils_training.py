@@ -70,7 +70,7 @@ class SimpleLossCompute:
         return loss.data[0] * norm
 
 
-def run_epoch(data_iter, model, loss_compute):
+def run_epoch(data_iter, model, loss_compute, epoch=None):
     "Standard Training and Logging Function"
     start = time.time()
     total_tokens = 0
@@ -85,8 +85,8 @@ def run_epoch(data_iter, model, loss_compute):
         tokens += batch.ntokens
         if i % 50 == 1:
             elapsed = time.time() - start
-            print("Epoch Step: %d Loss: %f Tokens per Sec: %f" %
-                    (i, loss / batch.ntokens, tokens / elapsed))
+            print("Epoch %d Step: %d Loss: %f Tokens per Sec: %f" %
+                    (epoch, i, loss / batch.ntokens, tokens / elapsed))
             start = time.time()
             tokens = 0
     return total_loss / total_tokens

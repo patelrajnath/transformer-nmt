@@ -61,7 +61,7 @@ if True:
                   SimpleLossCompute(model.generator, criterion, model_opt))
         model.eval()
         print(run_epoch((rebatch(pad_idx, b) for b in train_iter), model,
-                        SimpleLossCompute(model.generator, criterion, None)))
+                        SimpleLossCompute(model.generator, criterion, None)), epoch)
         print("Saving checkpoint!", checkpoint)
         torch.save(model, checkpoint)
 

@@ -92,12 +92,17 @@ def run_epoch(data_iter, model, loss_compute, epoch=0):
     return total_loss / total_tokens
 
 
-def save_state(filename, model):
-    """
-
-    :param filename:
-    :param model:
-    :return:
-    """
-    model_state = {"model": model.state_dict()}
+def save_checkpoint(filename, epoch, model, optimizer):
+    model_state = {
+        "epoch": epoch,
+        "model": model.state_dict(),
+        "optimizer": optimizer}
     torch.save(filename, model_state)
+
+
+def load_checkpoint(filename, model, optimizer):
+    checkpoint = torch.load(filename)
+    start_epoch = checkpoint['epoch']
+    model.load_state_dict(checkpoint['state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    return start_epoch

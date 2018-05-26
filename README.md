@@ -15,11 +15,18 @@ http://nlp.seas.harvard.edu/2018/04/03/attention.html
 ## Quick Start
 Train toy model on synthesized data.
 ```bash
-$python3 train_toy.py
+$python train_toy.py
 ```
 or
 
-Train a real de-en model using default configuration.
+Train a real de-en model using default configuration. To download the prepared data
+use the following spacy command.
+
+```bash
+$python -m spacy download en
+$python -m spacy download de
+```
+
 ```bash
 $python train.py
 ```

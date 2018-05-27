@@ -10,7 +10,7 @@ http://nlp.seas.harvard.edu/2018/04/03/attention.html
 * pytorch
 * numpy 
 * torchtext
-* spacy
+* spacy (to train the de-en model)
 
 ## Quick Start
 Train toy model on synthesized data.

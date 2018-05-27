@@ -19,6 +19,7 @@ from models.model_attenntion import MultiHeadedAttention
 from preprocess.embedding import PositionwiseFeedForward, PositionalEncoding, Embeddings
 from nmtutils.utils_transfromer import clones
 
+
 class EncoderDecoder(nn.Module):
     """
     A standard Encoder-Decoder architecture. Base for this and many

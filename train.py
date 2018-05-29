@@ -13,7 +13,7 @@ import torch
 import os
 
 from transformer.utils.data import MyIterator, rebatch
-from transformer.models.transformer import make_model
+from transformer.models.transformer_attn import make_model
 from transformer.utils.download import get_data
 from transformer.optim.regularization import LabelSmoothing
 from transformer.nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, \

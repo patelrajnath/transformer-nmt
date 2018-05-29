@@ -12,14 +12,14 @@ from __future__ import print_function
 import torch
 import os
 
-from utils.data import MyIterator, rebatch
-from models.transformer import make_model
-from utils.download import get_data
-from optim.regularization import LabelSmoothing
-from nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, \
+from transformer.utils.data import MyIterator, rebatch
+from transformer.models.transformer import make_model
+from transformer.utils.download import get_data
+from transformer.optim.regularization import LabelSmoothing
+from transformer.nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, \
     save_state, load_model_state
-from optim.noam import NoamOpt
-from translate.decode_transformer import greedy_decode
+from transformer.optim.noam import NoamOpt
+from transformer.translate.decode_transformer import greedy_decode
 
 
 # GPUs to use

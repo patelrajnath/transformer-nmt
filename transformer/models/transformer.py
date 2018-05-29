@@ -15,9 +15,9 @@ import copy
 from torch.nn import functional as F
 from torch import nn
 
-from models.model_attenntion import MultiHeadedAttention
-from preprocess.embedding import PositionwiseFeedForward, PositionalEncoding, Embeddings
-from nmtutils.utils_transfromer import clones
+from transformer.models.model_attenntion import MultiHeadedAttention
+from transformer.preprocess.embedding import PositionwiseFeedForward, PositionalEncoding, Embeddings
+from transformer.nmtutils.utils_transfromer import clones
 
 
 class EncoderDecoder(nn.Module):

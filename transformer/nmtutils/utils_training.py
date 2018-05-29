@@ -17,7 +17,7 @@ import traceback
 
 
 from torch.autograd import Variable
-from nmtutils.utils_transfromer import subsequent_mask
+from transformer.nmtutils.utils_transfromer import subsequent_mask
 from torch.serialization import default_restore_location
 
 

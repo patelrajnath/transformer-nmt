@@ -11,7 +11,7 @@
 
 import torch
 from torch.autograd import Variable
-from nmtutils.utils_transfromer import subsequent_mask
+from transformer.nmtutils.utils_transfromer import subsequent_mask
 
 
 def greedy_decode(model, src, src_mask, max_len, start_symbol):

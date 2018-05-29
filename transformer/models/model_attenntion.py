@@ -11,7 +11,7 @@
 
 from torch import nn
 
-from nmtutils.utils_transfromer import attention, clones
+from transformer.nmtutils.utils_transfromer import attention, clones
 
 
 class MultiHeadedAttention(nn.Module):

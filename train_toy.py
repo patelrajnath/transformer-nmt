@@ -10,13 +10,13 @@
  """
 
 import torch
-from nmtutils.utils_training import run_epoch, SimpleLossCompute
-from models.transformer import make_model
-from utils.data import data_gen
-from optim.noam import NoamOpt
-from optim.regularization import LabelSmoothing
+from transformer.nmtutils import run_epoch, SimpleLossCompute
+from transformer.models import make_model
+from transformer.utils import data_gen
+from transformer.optim import NoamOpt
+from transformer.optim import LabelSmoothing
 from torch.autograd import Variable
-from translate.decode_transformer import greedy_decode
+from transformer.translate.decode_transformer import greedy_decode
 
 
 # Train the simple copy task.

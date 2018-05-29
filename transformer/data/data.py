@@ -15,7 +15,7 @@ import numpy as np
 from torchtext import data
 
 from torch.autograd import Variable
-from nmtutils.utils_training import Batch
+from transformer.nmtutils import Batch
 
 
 def data_gen(V, batch, nbatches):

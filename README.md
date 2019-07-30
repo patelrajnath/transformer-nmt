@@ -6,8 +6,8 @@ http://nlp.seas.harvard.edu/2018/04/03/attention.html
 
 
 ## Pre-requisites
-
-* pytorch
+* python >= 3.6
+* pytorch >= 0.5
 * numpy 
 * torchtext
 * spacy (to train the de-en model)

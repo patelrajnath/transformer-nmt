@@ -72,7 +72,7 @@ class SimpleLossCompute:
         if self.opt is not None:
             self.opt.step()
             self.opt.optimizer.zero_grad()
-        return loss.data[0] * norm
+        return loss.data * norm
 
 
 def run_epoch(data_iter, model, loss_compute, epoch=0):

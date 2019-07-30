@@ -10,11 +10,11 @@
  """
 
 import torch
-from transformer.nmtutils import run_epoch, SimpleLossCompute
-from transformer.models import make_model
-from transformer.utils import data_gen
-from transformer.optim import NoamOpt
-from transformer.optim import LabelSmoothing
+from transformer.nmtutils.utils_training import run_epoch, SimpleLossCompute
+from transformer.models.transformer_attn import make_model
+from transformer.utils.data import data_gen
+from transformer.optim.noam import NoamOpt
+from transformer.optim.regularization import LabelSmoothing
 from torch.autograd import Variable
 from transformer.translate.decode_transformer import greedy_decode
 

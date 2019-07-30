@@ -9,8 +9,10 @@
  Created: 26/May/2018 01:04
  """
 from __future__ import print_function
+
+import math
+
 import torch
-import os
 
 from transformer.utils.data import MyIterator, rebatch
 from transformer.models.transformer_attn import make_model
@@ -23,37 +25,33 @@ from transformer.translate.decode_transformer import greedy_decode
 
 
 # GPUs to use
-is_cuda=False
+use_cuda=torch.cuda.is_available()
+
 train, val, test, SRC, TGT = get_data()
 
 if True:
     pad_idx = TGT.vocab.stoi["<blank>"]
     global model
-    model = make_model(len(SRC.vocab), len(TGT.vocab), N=6)
+    model = make_model(len(SRC.vocab), len(TGT.vocab), N=1)
     criterion = LabelSmoothing(size=len(TGT.vocab), padding_idx=pad_idx, smoothing=0.1)
 
-    if is_cuda:
-        cuda_device = os.environ["CUDA_VISIBLE_DEVICES"]
-        print(cuda_device)
+    if use_cuda:
         model.cuda()
         criterion.cuda()
-    else:
-        cuda_device = -1
 
-    BATCH_SIZE = 1000
+    BATCH_SIZE = 100
     global train_iter
-    train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=cuda_device,
+    n_batches = math.ceil(len(train) / BATCH_SIZE)
+    train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
     global valid_iter
-    valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=cuda_device,
+    valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
     # model_par = nn.DataParallel(model, device_ids=devices)
 None
-
-checkpoint = 'filename.pt'
-
+checkpoint_last = 'checkpoint_last.pt'
 run_training=True
 if run_training:
     global model_opt
@@ -61,19 +59,22 @@ if run_training:
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
     start_epoch = 0
     max_epochs = 10
-    start_epoch = load_model_state(checkpoint, model, cuda_device=cuda_device)
+    start_epoch = load_model_state(checkpoint_last, model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     for epoch in range(start_epoch, max_epochs):
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
                   model,
-                  SimpleLossCompute(model.generator, criterion, model_opt), epoch)
+                  SimpleLossCompute(model.generator, criterion, model_opt), epoch, n_batches)
+        checkpoint = "checkpoint"+ str(epoch) + ".pt"
+
         save_state(checkpoint, model, criterion, model_opt, epoch)
+        save_state(checkpoint_last, model, criterion, model_opt, epoch)
         model.eval()
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
-                         SimpleLossCompute(model.generator, criterion, None))
+                         SimpleLossCompute(model.generator, criterion, None), n_batches)
         print(loss)
 else:
-    start_epoch = load_model_state(checkpoint, model, cuda_device=cuda_device)
+    start_epoch = load_model_state(checkpoint_last, model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     model.eval()
 
 for i, batch in enumerate(valid_iter):

@@ -62,7 +62,7 @@ try:
 except OSError:
     pass
 checkpoint_last = 'checkpoint_last.pt'
-run_training=True
+run_training=False
 if run_training:
     global model_opt
     if use_cuda and torch.cuda.device_count() > 1:
@@ -101,8 +101,10 @@ if run_training:
                                  compute_loss_eval)
         print(loss)
 else:
-    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    modeldir = "/home/raj/PycharmProjects/models/transformer-nmt"
+    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, data_parallel=True)
     model.eval()
+
 
 for i, batch in enumerate(valid_iter):
     src = batch.src.transpose(0, 1)[:1]

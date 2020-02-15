@@ -21,7 +21,7 @@ from transformer.models.transformer_attn import make_model
 from transformer.utils.download import get_data
 from transformer.optim.regularization import LabelSmoothing
 from transformer.nmtutils.utils_training import batch_size_fn, run_epoch, SimpleLossCompute, \
-    save_state, load_model_state
+    save_state, load_model_state, MultiGPULossCompute
 from transformer.optim.noam import NoamOpt
 from transformer.translate.decode_transformer import greedy_decode
 
@@ -68,9 +68,11 @@ if run_training:
     if use_cuda and torch.cuda.device_count() > 1:
         emb = model.module.src_embed[0].d_model
         generator = model.module.generator
+        compute_loss = MultiGPULossCompute
     else:
         emb = model.src_embed[0].d_model
         generator = model.generator
+        compute_loss = SimpleLossCompute
 
     model_opt = NoamOpt(emb, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
@@ -81,15 +83,15 @@ if run_training:
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
                   model,
-                  SimpleLossCompute(, criterion, model_opt), epoch)
+                  compute_loss(generator, criterion, model_opt), epoch)
         checkpoint = "checkpoint"+ str(epoch) + ".pt"
 
         save_state(os.path.join(modeldir, checkpoint), model, criterion, model_opt, epoch)
         save_state(os.path.join(modeldir, checkpoint_last), model, criterion, model_opt, epoch)
         model.eval()
-        loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
-                         SimpleLossCompute(model.generator, criterion, None))
-        print(loss)
+        compute_loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
+                                 SimpleLossCompute(model.generator, criterion, None))
+        print(compute_loss)
 else:
     start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     model.eval()

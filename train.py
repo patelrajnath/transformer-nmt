@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import math
+import os
 
 import torch
 
@@ -51,6 +52,11 @@ if True:
                             batch_size_fn=batch_size_fn, train=True)
     # model_par = nn.DataParallel(model, device_ids=devices)
 None
+modeldir = "transformer"
+try:
+    os.makedirs(modeldir)
+except OSError:
+    pass
 checkpoint_last = 'checkpoint_last.pt'
 run_training=True
 if run_training:
@@ -59,7 +65,7 @@ if run_training:
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
     start_epoch = 0
     max_epochs = 10
-    start_epoch = load_model_state(checkpoint_last, model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     for epoch in range(start_epoch, max_epochs):
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
@@ -67,14 +73,14 @@ if run_training:
                   SimpleLossCompute(model.generator, criterion, model_opt), epoch)
         checkpoint = "checkpoint"+ str(epoch) + ".pt"
 
-        save_state(checkpoint, model, criterion, model_opt, epoch)
-        save_state(checkpoint_last, model, criterion, model_opt, epoch)
+        save_state(os.path.join(modeldir, checkpoint), model, criterion, model_opt, epoch)
+        save_state(os.path.join(modeldir, checkpoint_last), model, criterion, model_opt, epoch)
         model.eval()
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
                          SimpleLossCompute(model.generator, criterion, None))
         print(loss)
 else:
-    start_epoch = load_model_state(checkpoint_last, model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     model.eval()
 
 for i, batch in enumerate(valid_iter):

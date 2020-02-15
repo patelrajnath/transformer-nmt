@@ -34,7 +34,7 @@ train, val, test, SRC, TGT = get_data()
 if True:
     pad_idx = TGT.vocab.stoi["<blank>"]
     global model
-    model = make_model(len(SRC.vocab), len(TGT.vocab), N=1)
+    model = make_model(len(SRC.vocab), len(TGT.vocab))
     criterion = LabelSmoothing(size=len(TGT.vocab), padding_idx=pad_idx, smoothing=0.1)
 
     if use_cuda:

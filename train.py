@@ -64,14 +64,14 @@ if run_training:
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
                   model,
-                  SimpleLossCompute(model.generator, criterion, model_opt), epoch, n_batches)
+                  SimpleLossCompute(model.generator, criterion, model_opt), epoch)
         checkpoint = "checkpoint"+ str(epoch) + ".pt"
 
         save_state(checkpoint, model, criterion, model_opt, epoch)
         save_state(checkpoint_last, model, criterion, model_opt, epoch)
         model.eval()
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
-                         SimpleLossCompute(model.generator, criterion, None), n_batches)
+                         SimpleLossCompute(model.generator, criterion, None))
         print(loss)
 else:
     start_epoch = load_model_state(checkpoint_last, model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))

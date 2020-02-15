@@ -78,9 +78,13 @@ if run_training:
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
     if use_cuda and torch.cuda.device_count() > 1:
-        compute_loss = MultiGPULossCompute(generator, criterion, devices=[0, 1, 2, 3], opt=model_opt)
+        # compute_loss = MultiGPULossCompute(generator, criterion, devices=[0, 1, 2, 3], opt=model_opt)
+        # compute_loss_eval = MultiGPULossCompute(generator, criterion, devices=[0, 1, 2, 3], opt=None)
+        compute_loss = SimpleLossCompute(generator, criterion, opt=model_opt)
+        compute_loss_eval = SimpleLossCompute(generator, criterion, opt=None)
     else:
         compute_loss = SimpleLossCompute(generator, criterion, opt=model_opt)
+        compute_loss_eval = SimpleLossCompute(generator, criterion, opt=None)
     start_epoch = 0
     max_epochs = 10
     start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
@@ -94,7 +98,7 @@ if run_training:
         save_state(os.path.join(modeldir, checkpoint_last), model, criterion, model_opt, epoch)
         model.eval()
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
-                                 SimpleLossCompute(generator, criterion, None))
+                                 compute_loss_eval)
         print(loss)
 else:
     start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))

@@ -68,30 +68,34 @@ if run_training:
     if use_cuda and torch.cuda.device_count() > 1:
         emb = model.module.src_embed[0].d_model
         generator = model.module.generator
-        compute_loss = MultiGPULossCompute
+
     else:
         emb = model.src_embed[0].d_model
         generator = model.generator
-        compute_loss = SimpleLossCompute
+
 
     model_opt = NoamOpt(emb, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
+
+    if use_cuda and torch.cuda.device_count() > 1:
+        compute_loss = MultiGPULossCompute(generator, criterion, devices=[0, 1, 2, 3], opt=model_opt)
+    else:
+        compute_loss = SimpleLossCompute(generator, criterion, opt=model_opt)
     start_epoch = 0
     max_epochs = 10
     start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     for epoch in range(start_epoch, max_epochs):
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
-                  model,
-                  compute_loss(generator, criterion, model_opt), epoch)
+                  model, compute_loss, epoch)
         checkpoint = "checkpoint"+ str(epoch) + ".pt"
 
         save_state(os.path.join(modeldir, checkpoint), model, criterion, model_opt, epoch)
         save_state(os.path.join(modeldir, checkpoint_last), model, criterion, model_opt, epoch)
         model.eval()
-        compute_loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
-                                 SimpleLossCompute(model.generator, criterion, None))
-        print(compute_loss)
+        loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter), model,
+                                 SimpleLossCompute(generator, criterion, None))
+        print(loss)
 else:
     start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     model.eval()

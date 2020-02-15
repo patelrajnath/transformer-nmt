@@ -45,7 +45,7 @@ if True:
         print("Using %d GPUS for BERT" % torch.cuda.device_count())
         model = nn.DataParallel(model, device_ids=[0,1,2,3])
 
-    BATCH_SIZE = 100
+    BATCH_SIZE = 4000
     global train_iter
     n_batches = math.ceil(len(train) / BATCH_SIZE)
     train_iter = MyIterator(train, batch_size=BATCH_SIZE, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
@@ -67,8 +67,10 @@ if run_training:
     global model_opt
     if use_cuda and torch.cuda.device_count() > 1:
         emb = model.module.src_embed[0].d_model
+        generator = model.module.generator
     else:
         emb = model.src_embed[0].d_model
+        generator = model.generator
 
     model_opt = NoamOpt(emb, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
@@ -79,7 +81,7 @@ if run_training:
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
                   model,
-                  SimpleLossCompute(model.generator, criterion, model_opt), epoch)
+                  SimpleLossCompute(, criterion, model_opt), epoch)
         checkpoint = "checkpoint"+ str(epoch) + ".pt"
 
         save_state(os.path.join(modeldir, checkpoint), model, criterion, model_opt, epoch)

@@ -65,7 +65,12 @@ checkpoint_last = 'checkpoint_last.pt'
 run_training=True
 if run_training:
     global model_opt
-    model_opt = NoamOpt(model.src_embed[0].d_model, 1, 2000,
+    if use_cuda and torch.cuda.device_count() > 1:
+        emb = model.module.src_embed[0].d_model
+    else:
+        emb = model.src_embed[0].d_model
+
+    model_opt = NoamOpt(emb, 1, 2000,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
     start_epoch = 0
     max_epochs = 10

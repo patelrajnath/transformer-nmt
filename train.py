@@ -14,6 +14,7 @@ import math
 import os
 
 import torch
+from torch import nn
 
 from transformer.utils.data import MyIterator, rebatch
 from transformer.models.transformer_attn import make_model
@@ -40,6 +41,10 @@ if True:
         model.cuda()
         criterion.cuda()
 
+    if use_cuda and torch.cuda.device_count() > 1:
+        print("Using %d GPUS for BERT" % torch.cuda.device_count())
+        model = nn.DataParallel(model, device_ids=[0,1,2,3])
+
     BATCH_SIZE = 100
     global train_iter
     n_batches = math.ceil(len(train) / BATCH_SIZE)
@@ -50,8 +55,7 @@ if True:
     valid_iter = MyIterator(val, batch_size=BATCH_SIZE, device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
-    # model_par = nn.DataParallel(model, device_ids=devices)
-None
+
 modeldir = "transformer"
 try:
     os.makedirs(modeldir)

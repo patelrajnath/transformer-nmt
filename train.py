@@ -91,9 +91,9 @@ if run_training:
     max_epochs = 20
     for epoch in range(start_epoch, max_epochs):
         model.train()
-        run_epoch((rebatch(pad_idx, b) for b in train_iter),
+        loss = run_epoch((rebatch(pad_idx, b) for b in train_iter),
                   model, compute_loss, epoch)
-        checkpoint = "checkpoint"+ str(epoch) + ".pt"
+        checkpoint = "checkpoint{}_".format(loss) + str(epoch) + ".pt"
 
         save_state(os.path.join(modeldir, checkpoint), model, criterion, model_opt, epoch)
         save_state(os.path.join(modeldir, checkpoint_last), model, criterion, model_opt, epoch)

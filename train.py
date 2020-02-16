@@ -31,11 +31,19 @@ use_cuda=torch.cuda.is_available()
 
 train, val, test, SRC, TGT = get_data()
 
+modeldir = "transformer-model"
+checkpoint_last = 'checkpoint_last.pt'
+
 if True:
+    try:
+        os.makedirs(modeldir)
+    except OSError:
+        pass
     pad_idx = TGT.vocab.stoi["<blank>"]
     global model
     model = make_model(len(SRC.vocab), len(TGT.vocab))
     criterion = LabelSmoothing(size=len(TGT.vocab), padding_idx=pad_idx, smoothing=0.1)
+    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model)
 
     if use_cuda:
         model.cuda()
@@ -56,13 +64,7 @@ if True:
                             repeat=False, sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn, train=True)
 
-modeldir = "transformer"
-try:
-    os.makedirs(modeldir)
-except OSError:
-    pass
-checkpoint_last = 'checkpoint_last.pt'
-run_training=False
+run_training=True
 if run_training:
     global model_opt
     if use_cuda and torch.cuda.device_count() > 1:
@@ -86,8 +88,7 @@ if run_training:
         compute_loss = SimpleLossCompute(generator, criterion, opt=model_opt)
         compute_loss_eval = SimpleLossCompute(generator, criterion, opt=None)
     start_epoch = 0
-    max_epochs = 10
-    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, cuda_device=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    max_epochs = 20
     for epoch in range(start_epoch, max_epochs):
         model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
@@ -101,8 +102,8 @@ if run_training:
                                  compute_loss_eval)
         print(loss)
 else:
-    modeldir = "/home/raj/PycharmProjects/models/transformer-nmt"
-    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model, data_parallel=True)
+    modeldir = "transformer"
+    start_epoch = load_model_state(os.path.join(modeldir, checkpoint_last), model)
     model.eval()
 
 
